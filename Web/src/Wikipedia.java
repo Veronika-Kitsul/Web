@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import javax.lang.model.util.Elements;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -26,26 +27,33 @@ public class Wikipedia
 	{
 		
 		JFrame frame = new JFrame();
+		JPanel main = new JPanel();
 		JPanel panel = new JPanel();
-		frame.add(panel);
+		frame.add(main);
+		main.add(panel);
+		
+		BoxLayout boxlayout = new BoxLayout(main, BoxLayout.Y_AXIS);
+		main.setLayout(boxlayout);
 		
 		JTextArea displayarea = new JTextArea();
 		displayarea.setEditable(false);
-		panel.add(displayarea);
 		displayarea.setPreferredSize(new Dimension(600, 400));
 		displayarea.setLineWrap(true);
 		displayarea.setWrapStyleWord(true);
-		
+		panel.add(displayarea);
 		
 		//scrollbar for output text
 				JScrollPane scroll = new JScrollPane (displayarea);
 				scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-				scroll.setMinimumSize(new Dimension(600, 400));
 				scroll.setPreferredSize(new Dimension(600, 400));
 				panel.add(scroll);
 
+		JPanel buttons = new JPanel();
+		main.add(buttons);
+		buttons.setPreferredSize(new Dimension());
+		
 		JButton wikipedia = new JButton("Search");
-		panel.add(wikipedia);
+		buttons.add(wikipedia);
 		wikipedia.addActionListener(new ActionListener()
 				{
 					public void actionPerformed(ActionEvent e) 
@@ -93,7 +101,6 @@ public class Wikipedia
 									info = info + "\n" + paragraph.text();
 								}
 							}
-							
 				
 							displayarea.setText(info);
 			    		
