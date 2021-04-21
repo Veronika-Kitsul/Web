@@ -132,8 +132,8 @@ public class WikiGame
 							// i need to actually follow the link somehow------------------------------------------
 										else
 										{
-											toVisit.add(newLink);
-											visited.add(newLink);
+											toVisit.add(abshref);
+											visited.add(abshref);
 										}
 									}
 								}
