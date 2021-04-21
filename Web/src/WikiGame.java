@@ -88,10 +88,11 @@ public class WikiGame
 								
 								// add BFS
 								ArrayList<String> toVisit = new ArrayList<String>();
-								toVisit.add(startTopic);
+								String start = "https://en.wikipedia.org/wiki/" + startTopic;
+								toVisit.add(start);
 								
 								ArrayList<String> visited = new ArrayList<String>();
-								visited.add(startTopic);
+								visited.add(start);
 								
 								HashMap<String, String> leadsTo = new HashMap<String, String>();
 								
@@ -100,40 +101,39 @@ public class WikiGame
 									// we don't need to visit current location again
 									String curr = toVisit.remove(0);
 									
-									// selecting all the links from the web-page
-									first = Jsoup.connect("https://en.wikipedia.org/wiki/" + curr).get();
+									System.out.println(curr);
+									System.out.println("----------------------------------------------------------------");
+									
+									// connect to the current web-page
+									first = Jsoup.connect(curr).get();
 									Element body = first.getElementById("bodyContent");
 									Elements links = body.select("a");
 									
 									// for all of the links on the current page
 									for (Element newLink: links)
 									{	
-										String linkie = "";
-										String abshref = newLink.attr("abs:href");
-										if (abshref.contains("wikipedia.org/wiki/"))
+										// get their absolute links
+										String abshref = newLink.attr("abs:href").toLowerCase();
+										if (abshref.contains("wikipedia.org/wiki/") && abshref.contains("wikipedia.org/wiki/file") == false)
 										{
-											linkie = newLink.text().toLowerCase();
-											System.out.println(linkie);
+											// if you have already visited then just continue
+											if (visited.contains(abshref)) continue;
 											
-										}
-										// if you have already visited then just continue
-										if (visited.contains(linkie)) continue;
-										
-										// put the path to the map
-										leadsTo.put(linkie, curr);
-										
-										// if we found what we are looking for then call backTrace to trace all the path back to the start
-										if (linkie.contains(finishTopic.toLowerCase()))
-										{
-											displayarea.setText(backTrace(linkie, leadsTo).toString());
-											return;
-										}
-										
-							// i need to actually follow the link somehow------------------------------------------
-										else
-										{
-											toVisit.add(abshref);
-											visited.add(abshref);
+											// put the path to the map
+											leadsTo.put(abshref, curr);
+											
+											// if we found what we are looking for then call backTrace to trace all the path back to the start
+											if (abshref.contains(finishTopic.toLowerCase()))
+											{
+												System.out.println(leadsTo);
+												displayarea.setText(backTrace(abshref, leadsTo).toString());
+												return;
+											}
+											else
+											{
+												toVisit.add(abshref);
+												visited.add(abshref);
+											}
 										}
 									}
 								}
@@ -145,8 +145,7 @@ public class WikiGame
 							
 						} 
 						catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+							displayarea.setText("We've got some unforseen mistake. Please try to repeat your request!");
 						}
 					} 
 				});
@@ -163,15 +162,16 @@ public class WikiGame
 
 	private ArrayList<String> backTrace(String finishTopic, HashMap<String, String> leadsTo)
 	{
+		// link of the current topic we finished on
 		String curr = finishTopic;
 		ArrayList<String> path = new ArrayList<String>();
 	
-		while (curr != null || !curr.equals("")) 
+		while (curr != null) 
 		{
 			path.add(0, curr);
 			curr = leadsTo.get(curr);
+			
 		}
-		
 		System.out.println(path);
 		return path;
 	}
