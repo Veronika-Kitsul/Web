@@ -30,6 +30,7 @@ public class WikiGame
 
 	public WikiGame() 
 	{
+	// basic GUI things
 		int size = 600;
 		JFrame frame = new JFrame();
 		JPanel panel = new JPanel();
@@ -46,8 +47,9 @@ public class WikiGame
 		displayarea.setPreferredSize(new Dimension(size, size - size/4));
 		displayarea.setBorder(BorderFactory.createLineBorder(new Color(252, 186, 3), 10));
 		top.add(displayarea);
+		displayarea.setText("Hi! Enter your start and finish topic to run the game!");
 		
-		
+		// start topic button
 		JButton start = new JButton("Enter the starting topic");
 		bottom.add(start);
 		start.addActionListener(new ActionListener()
@@ -59,9 +61,14 @@ public class WikiGame
 						{
 							displayarea.setText("Looks like your starting topic is ~nothing~ which we obviously cannot work with!");
 						}
+						else 
+						{
+							displayarea.setText("Looks great! Now enter your finish topic.");
+						}
 					}
 				});
 		
+		// end topic button
 		JButton finish = new JButton("Enter the terminal topic");
 		bottom.add(finish);
 		finish.addActionListener(new ActionListener()
@@ -72,6 +79,9 @@ public class WikiGame
 						if (finishTopic == null || finishTopic.equals(""))
 						{
 							displayarea.setText("Looks like your end topic is ~nothing~ which we obviously cannot work with!");
+						}
+						{
+							displayarea.setText("Hold on a second, we are running the game!");
 						}
 						
 						// handle edge case of finish == start
@@ -100,21 +110,20 @@ public class WikiGame
 								{
 									// we don't need to visit current location again
 									String curr = toVisit.remove(0);
-									
 									System.out.println(curr);
-									System.out.println("----------------------------------------------------------------");
 									
 									// connect to the current web-page
 									first = Jsoup.connect(curr).get();
 									Element body = first.getElementById("bodyContent");
 									Elements links = body.select("a");
-									
+									System.out.println("----------------------------------------------------------------");
+
 									// for all of the links on the current page
 									for (Element newLink: links)
 									{	
 										// get their absolute links
-										String abshref = newLink.attr("abs:href").toLowerCase();
-										if (abshref.contains("wikipedia.org/wiki/") && abshref.contains("wikipedia.org/wiki/file") == false)
+										String abshref = newLink.attr("abs:href");
+										if (abshref.toLowerCase().contains("wikipedia.org/wiki/") && abshref.contains("wikipedia.org/wiki/file") == false)
 										{
 											// if you have already visited then just continue
 											if (visited.contains(abshref)) continue;
@@ -123,10 +132,18 @@ public class WikiGame
 											leadsTo.put(abshref, curr);
 											
 											// if we found what we are looking for then call backTrace to trace all the path back to the start
-											if (abshref.contains(finishTopic.toLowerCase()))
+											if (abshref.toLowerCase().contains(finishTopic.toLowerCase()))
 											{
 												System.out.println(leadsTo);
-												displayarea.setText(backTrace(abshref, leadsTo).toString());
+												String text = "Follow the links in the order:\n";
+												ArrayList path = backTrace(abshref, leadsTo);
+												
+												// nice formatting of the output
+												for (int i = 0; i < path.size(); i++)
+												{
+													text = text + i + ") " + path.get(i).toString() + "\n";
+												}
+												displayarea.setText(text);
 												return;
 											}
 											else
@@ -172,7 +189,6 @@ public class WikiGame
 			curr = leadsTo.get(curr);
 			
 		}
-		System.out.println(path);
 		return path;
 	}
 	
